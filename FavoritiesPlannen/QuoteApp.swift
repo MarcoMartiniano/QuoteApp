@@ -8,10 +8,10 @@
 import SwiftUI
 
 @main
-struct FavoritiesPlannenApp: App {
+struct QuoteApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
         }
     }
 }
