@@ -8,20 +8,29 @@
 import Foundation
 import SwiftData
 
-@Model
-class Quote: Identifiable {
-    var id: UUID = UUID()
-    var text: String
-    var isFavorite: Bool
-    
-    @Relationship(inverse: \Author.quotes)
-    var author: Author?  // Um autor por citação, facilita
-    
-    init(id: UUID = UUID(), text: String, isFavorite: Bool = false, author: Author? = nil) {
-        self.id = id
-        self.text = text
-        self.isFavorite = isFavorite
-        self.author = author
-    }
-    
-}
+ @Model
+ class Quote {
+     
+     var id: UUID
+     var text: String
+     var isFavorite: Bool
+     var category: QuoteCategory
+     
+     @Relationship(inverse: \Author.quotes)
+     var author: Author?
+     
+     init(
+         id: UUID = UUID(),
+         text: String,
+         isFavorite: Bool = false,
+         category: QuoteCategory,
+         author: Author? = nil
+     ) {
+         self.id = id
+         self.text = text
+         self.isFavorite = isFavorite
+         self.category = category
+         self.author = author
+     }
+ }
+

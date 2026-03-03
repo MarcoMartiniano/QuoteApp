@@ -6,61 +6,13 @@
 //
 
 import SwiftUI
+import SwiftData
 
-// MARK: - FavoriteRowView
-struct QuoteRowView: View {
-    @State private var bounce = false
-    @Binding var quote: Quote
+struct QuoteView: View {
     
-    var body: some View {
-        HStack(alignment: .top, spacing: 10) {
-            Image(systemName: "globe")
-                .resizable()
-                .frame(width: 40, height: 40)
-                .foregroundColor(.blue)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(quote.author?.name ?? "")
-                    .font(.headline)
-                Text(quote.text)
-                    .font(.callout)
-                    .italic()
-                    .foregroundColor(.secondary)
-            }
-            
-            Spacer()
-            
-            Button(action: {
-                quote.isFavorite.toggle()
-                
-                withAnimation(.spring(response: 0.15, dampingFraction: 0.5)) {
-                    bounce = true
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                    withAnimation(.spring(response: 0.15, dampingFraction: 0.5)) {
-                        bounce = false
-                    }
-                }
-                
-            }) {
-                Image(systemName: quote.isFavorite ? "heart.fill" : "heart")
-                    .foregroundStyle(.red)
-                    .font(.system(size: 24))
-                    .scaleEffect(bounce ? 1.2 : 1.0)
-            }
-            .buttonStyle(PlainButtonStyle())
-        }
-        .padding(.vertical, 8)
-        .onAppear{
-            
-        }
-    }
-}
-
-import SwiftUI
-
-struct QuoteView: View {    
-    @State private var quotes: [Quote] = InitiaEntryData.quotes
+    @Environment(\.modelContext) private var context
+    @Query private var quotes: [Quote]
+    
     @State private var filter: FilterType = .all
     
     enum FilterType: String, CaseIterable, Identifiable {
@@ -71,6 +23,7 @@ struct QuoteView: View {
         var id: String { self.rawValue }
     }
     
+    // MARK: - Filtered Quotes
     var filteredQuotes: [Quote] {
         switch filter {
         case .all:
@@ -85,6 +38,8 @@ struct QuoteView: View {
     var body: some View {
         NavigationStack {
             VStack {
+                
+                // MARK: - Picker
                 Picker("Filter", selection: $filter) {
                     ForEach(FilterType.allCases) { type in
                         Text(type.rawValue).tag(type)
@@ -93,17 +48,75 @@ struct QuoteView: View {
                 .pickerStyle(.segmented)
                 .padding()
                 
+                // MARK: - List
                 List {
-                    ForEach($quotes) { $quote in
-                        if filteredQuotes.contains(where: { $0.id == quote.id }) {
-                            QuoteRowView(quote: $quote)
-                        }
+                    ForEach(filteredQuotes) { quote in
+                        QuoteRowView(quote: quote)
                     }
+                    .onDelete(perform: deleteQuote)
                 }
-                .listStyle(PlainListStyle())
+                .listStyle(.plain)
             }
             .navigationTitle("Zitate")
         }
+    }
+    
+    // MARK: - Delete
+    private func deleteQuote(at offsets: IndexSet) {
+        for index in offsets {
+            let quoteToDelete = filteredQuotes[index]
+            context.delete(quoteToDelete)
+        }
+        
+        try? context.save()
+    }
+}
+
+struct QuoteRowView: View {
+    
+    @Bindable var quote: Quote
+    @State private var bounce = false
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            
+            Image(systemName: "quote.bubble.fill")
+                .resizable()
+                .frame(width: 40, height: 40)
+                .foregroundColor(.blue)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(quote.author?.name ?? "Unbekannt")
+                    .font(.headline)
+                
+                Text(quote.text)
+                    .font(.callout)
+                    .italic()
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+            
+            Button {
+                quote.isFavorite.toggle()
+                
+                withAnimation(.spring(response: 0.2, dampingFraction: 0.5)) {
+                    bounce = true
+                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    bounce = false
+                }
+                
+            } label: {
+                Image(systemName: quote.isFavorite ? "heart.fill" : "heart")
+                    .foregroundStyle(.red)
+                    .font(.system(size: 24))
+                    .scaleEffect(bounce ? 1.2 : 1.0)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.vertical, 8)
     }
 }
 
