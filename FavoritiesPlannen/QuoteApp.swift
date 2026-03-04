@@ -13,6 +13,6 @@ struct QuoteApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
-        }.modelContainer(for: [Author.self, Quote.self])
+        }.modelContainer(for: [Author.self, Quote.self, CategorySelection.self])
     }
 }

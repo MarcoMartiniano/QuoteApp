@@ -9,9 +9,13 @@ import SwiftUI
 import SwiftData
 
 // Hauptansicht für die App
+
 struct HomeView: View {
     // Holt alle Zitate aus der Datenbank
     @Query private var allQuotes: [Quote]
+    @Query private var selectedCategories: [CategorySelection]
+    
+    @State private var selectedItem: Quote?
     
     // Zustände der Ansicht
     @State private var randomQuote: Quote? = nil
@@ -21,11 +25,13 @@ struct HomeView: View {
         NavigationView {
             VStack(spacing: 30) {
                 ZStack(alignment: .topTrailing) {
-                    Image("DreamWorld")
+                    
+                    Image(randomQuote?.category.image.isEmpty == false ? randomQuote!.category.image : QuoteCategory.none.image)
                         .resizable()
                         .scaledToFit()
                         .cornerRadius(20)
-
+                        .frame(maxWidth: .infinity, maxHeight: 250)
+                    
                     HStack {
                         Spacer()
                         Button{
@@ -38,29 +44,31 @@ struct HomeView: View {
                             .cornerRadius(10)
                         }.padding()
                     }
+                    
+                    
                 }.padding()
                 
                 // Container für die Zitat-Karte
                 VStack(alignment: .leading, spacing: 20) {
                     // Zitattext anzeigen
                     Text(randomQuote?.text ?? "Keine Zitate vorhanden")
-                        .font(.title) // Große Schriftart
-                        .fontWeight(.medium) // Mittleres Schriftgewicht
-                        .italic() // Kursivschrift
-                        .foregroundColor(.primary) // Hauptfarbe
+                        .font(.title)
+                        .fontWeight(.medium)
+                        .italic()
+                        .foregroundColor(.primary)
                     
                     // Autor anzeigen
                     Text("- \(randomQuote?.author?.name ?? "Unbekannt")")
-                        .font(.headline) // Überschrift-Schriftart
-                        .foregroundColor(.secondary) // Sekundärfarbe
-                        .frame(maxWidth: .infinity, alignment: .trailing) // Rechtsbündig
+                        .font(.headline)
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                     
                 }
-                .padding(25) // Innenabstand
-                .background(Color(UIColor.secondarySystemBackground)) // Hintergrund
-                .cornerRadius(15) // Abgerundete Ecken
-                .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5) // Schadoweffekt
-                .padding(.horizontal, 20) // Außenabstand
+                .padding(25)
+                .background(Color(UIColor.secondarySystemBackground))
+                .cornerRadius(15)
+                .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
+                .padding(.horizontal, 20)
                 
                 Button {
                 pickRandomQuote()
@@ -73,13 +81,13 @@ struct HomeView: View {
                 
                 Spacer()
             }
-            .navigationTitle("QuoteCraft") // Titel
+            .navigationTitle("QuoteCraft")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         showingAddSheet = true // Sheet öffnen
                     }) {
-                        Image(systemName: "plus") // Plus-Icon
+                        Image(systemName: "plus")
                     }
                 }
             }
@@ -96,9 +104,13 @@ struct HomeView: View {
     
     // Funktion für zufälliges Zitat
     private func pickRandomQuote() {
-        if let random = allQuotes.randomElement() {
-            randomQuote = random
-        }
+        let activeCategories = selectedCategories
+            .filter { $0.isSelected }
+            .map { $0.category }
+        
+        let filteredQuotes = allQuotes.filter { activeCategories.contains($0.category) }
+        
+        randomQuote = filteredQuotes.randomElement()
     }
     
 }
@@ -119,7 +131,7 @@ struct AddQuoteSheetView: View {
                     TextField("Autor eingeben...", text: $authorText)
                 }
             }
-            .navigationTitle("Zitat hinzufügen") // Titel
+            .navigationTitle("Zitat hinzufügen")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -153,4 +165,5 @@ struct AddQuoteSheetView: View {
 
 #Preview {
     HomeView()
+        .modelContainer(for: [Author.self, Quote.self], inMemory: true)
 }

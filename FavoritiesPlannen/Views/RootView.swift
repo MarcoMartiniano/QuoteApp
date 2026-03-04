@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct RootView: View {
+    @Environment(\.modelContext) private var context
     @State private var selectedTab = 0
     
     var body: some View {
@@ -27,6 +28,22 @@ struct RootView: View {
                 Label("Zitate", systemImage: "quote.bubble")
             }
             .tag(1)
+            
+            FavoritesView()
+                .tabItem {
+                    Label("Favoriten", systemImage: "heart.fill")
+                }
+                .tag(2)
+
+            PreferencesView()
+                .tabItem {
+                    Label("Preferences", systemImage: "slider.horizontal.3")
+                }
+                .tag(3)
+            
+        }
+        .onAppear {
+           DataSeeder.seedIfNeeded(context: context)
         }
     }
 }

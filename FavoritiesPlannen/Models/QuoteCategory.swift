@@ -42,4 +42,17 @@ enum QuoteCategory: String, CaseIterable, Identifiable, Codable {
         case .weisheit: return "lightbulb.fill"
         }
     }
+    
+    var image: String {
+        switch self {
+        case .none: return "DefaultImage"
+        case .motivation: return "MotivationImage"
+        case .leben: return "LebenImage"
+        case .liebe: return "LiebeImage"
+        case .erfolg: return "ErfolgImage"
+        case .humor: return "HumorImage"
+        case .weisheit: return "WeisheitImage"
+        }
+    }
 }
+
