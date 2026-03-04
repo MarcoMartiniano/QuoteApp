@@ -20,32 +20,36 @@ struct HomeView: View {
     // Zustände der Ansicht
     @State private var randomQuote: Quote? = nil
     @State private var showingAddSheet = false
+    @State private var showingShareSheet = false
     
     var body: some View {
         NavigationView {
             VStack(spacing: 30) {
                 ZStack(alignment: .topTrailing) {
                     
-                    Image(randomQuote?.category.image.isEmpty == false ? randomQuote!.category.image : QuoteCategory.none.image)
+                    let image = randomQuote?.category.image.isEmpty == false ? randomQuote!.category.image : QuoteCategory.none.image
+                    
+                    
+                    Image(image)
                         .resizable()
                         .scaledToFit()
                         .cornerRadius(20)
+                        .frame(maxWidth: .infinity, maxHeight: 250)
+                    
                     
                     HStack {
                         Spacer()
                         Button{
-                            
+                            showingShareSheet.toggle()
                         } label: {
-                          Image(systemName: "square.and.arrow.up.fill")
-                            .foregroundStyle(.black)
-                            .frame(width: 30 , height: 30)
-                            .background(Color.white)
-                            .cornerRadius(10)
+                            Image(systemName: "square.and.arrow.up.fill")
+                                .foregroundStyle(.black)
+                                .frame(width: 30 , height: 30)
+                                .background(Color.white)
+                                .cornerRadius(10)
                         }.padding()
                     }
-                    
-                    
-                }.padding()
+                }
                 
                 // Container für die Zitat-Karte
                 VStack(alignment: .leading, spacing: 20) {
@@ -94,6 +98,13 @@ struct HomeView: View {
                 // Aufruf der neuen Ansicht
                 AddQuoteSheetView()
             }
+            .sheet(isPresented: $showingShareSheet) {
+                // Aufruf der neuen Ansicht
+                ShareQuoteSheetView(selectedItem: selectedItem)
+                    .background(Color.black.opacity(0.1))
+                    .presentationDetents([.fraction(0.7)]) // tamanho médio
+                    .presentationDragIndicator(.visible) // mostra a alça para arrastar
+            }
             .onAppear {
                 // Beim Start ein zufälliges Zitat wählen
                 pickRandomQuote()
@@ -110,8 +121,62 @@ struct HomeView: View {
         let filteredQuotes = allQuotes.filter { activeCategories.contains($0.category) }
         
         randomQuote = filteredQuotes.randomElement()
+        selectedItem = randomQuote
     }
     
+}
+
+
+struct ShareQuoteSheetView: View {
+    let selectedItem: Quote?
+    
+    var body: some View {
+        if let item = selectedItem {
+            let image = selectedItem?.category.image.isEmpty == false ? selectedItem!.category.image : QuoteCategory.none.image
+            VStack {
+                HStack {
+                    Spacer()
+                    ShareLink(
+                        item: item.category.image,
+                        subject: Text("Zitat teilen"),
+                        message: Text("Was sagst du dazu?"),
+                        preview: SharePreview(
+                            "Zitater",
+                            image: Image("App-Logo")
+                        )
+                    ) {
+                        Label("", systemImage: "square.and.arrow.up.fill")
+                            .font(.system(size: 24))
+                            .foregroundStyle(.blue)
+                    }
+                }
+                
+                Spacer()
+                
+                VStack(spacing: 20) {
+                    Image(image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: .infinity)
+                    
+                    VStack(spacing: 6) {
+                        Text(item.text)
+                            .font(.title2)
+                        HStack{
+                            Spacer()
+                            Text(item.author?.name ?? "Author unbekannt")
+                                .font(.system(size: 16))
+                                .foregroundStyle(.gray)
+                                .italic()
+                        }
+                        
+                    }
+                }
+                Spacer()
+            }
+            .padding()
+        }
+    }
 }
 
 struct AddQuoteSheetView: View {
@@ -121,7 +186,6 @@ struct AddQuoteSheetView: View {
     @State private var quoteText = ""
     @State private var authorText = ""
     
-    // TICKET 15: Standardkategorie für den Picker
     @State private var selectedCategory: QuoteCategory = .motivation
     
     var body: some View {
@@ -132,7 +196,6 @@ struct AddQuoteSheetView: View {
                     TextField("Autor eingeben...", text: $authorText)
                 }
                 
-                // TICKET 15: Picker für die Kategorieauswahl
                 Section(header: Text("Kategorie auswählen")) {
                     Picker("Kategorie", selection: $selectedCategory) {
                         // Durchlaufen aller Kategorien
@@ -154,7 +217,6 @@ struct AddQuoteSheetView: View {
                     Button("Speichern") {
                         let newAuthor = Author(name: authorText)
                         
-                        // TICKET 15: Kategorie beim Speichern übergeben
                         let newQuote = Quote(text: quoteText, isFavorite: false, category: selectedCategory, author: newAuthor)
                         
                         modelContext.insert(newAuthor)
@@ -169,7 +231,14 @@ struct AddQuoteSheetView: View {
     }
 }
 
+
 #Preview {
     HomeView()
         .modelContainer(for: [Author.self, Quote.self], inMemory: true)
+}
+
+#Preview("ShareQuoteSheetView") {
+    ShareQuoteSheetView(
+        selectedItem: InitialEntryData.quotes.first
+    )
 }
