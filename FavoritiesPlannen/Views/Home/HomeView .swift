@@ -30,7 +30,6 @@ struct HomeView: View {
                         .resizable()
                         .scaledToFit()
                         .cornerRadius(20)
-                        .frame(maxWidth: .infinity, maxHeight: 250)
                     
                     HStack {
                         Spacer()
@@ -115,48 +114,55 @@ struct HomeView: View {
     
 }
 
-// Ansicht für das Pop-up
 struct AddQuoteSheetView: View {
     @Environment(\.dismiss) var dismiss // Zum Schließen
     @Environment(\.modelContext) private var modelContext // Datenbank-Kontext
     
-    @State private var quoteText = "" // Textfeld für Zitat
-    @State private var authorText = "" // Textfeld für Autor
+    @State private var quoteText = ""
+    @State private var authorText = ""
+    
+    // TICKET 15: Standardkategorie für den Picker
+    @State private var selectedCategory: QuoteCategory = .motivation
     
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Neues Zitat erstellen")) { // Abschnitt
+                Section(header: Text("Neues Zitat erstellen")) {
                     TextField("Zitat eingeben...", text: $quoteText)
                     TextField("Autor eingeben...", text: $authorText)
+                }
+                
+                // TICKET 15: Picker für die Kategorieauswahl
+                Section(header: Text("Kategorie auswählen")) {
+                    Picker("Kategorie", selection: $selectedCategory) {
+                        // Durchlaufen aller Kategorien
+                        ForEach(QuoteCategory.allCases, id: \.self) { category in
+                            Text(category.rawValue.capitalized).tag(category)
+                        }
+                    }
                 }
             }
             .navigationTitle("Zitat hinzufügen")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Abbrechen") { // Abbrechen-Button
+                    Button("Abbrechen") {
                         dismiss()
                     }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Speichern") { // Speichern-Button
-                        
-                        // 1. Neuen Autor erstellen
+                    Button("Speichern") {
                         let newAuthor = Author(name: authorText)
                         
-                        // 2. Neues Zitat erstellen und Autor verknüpfen
-                        let newQuote = Quote(text: quoteText, isFavorite: false, category: .none, author: newAuthor)
+                        // TICKET 15: Kategorie beim Speichern übergeben
+                        let newQuote = Quote(text: quoteText, isFavorite: false, category: selectedCategory, author: newAuthor)
                         
-                        // 3. In die Datenbank einfügen
                         modelContext.insert(newAuthor)
                         modelContext.insert(newQuote)
                         
-                        // 4. Sheet schließen
                         dismiss()
                     }
-                    // Deaktivieren, wenn Felder leer sind
-                    .disabled(quoteText.isEmpty || authorText.isEmpty)
+                    .disabled(quoteText.isEmpty || authorText.isEmpty) // Button deaktivieren
                 }
             }
         }
