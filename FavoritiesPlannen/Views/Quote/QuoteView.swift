@@ -80,10 +80,9 @@ struct QuoteRowView: View {
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
             
-            Image(systemName: "quote.bubble.fill")
-                .resizable()
-                .frame(width: 40, height: 40)
+            Image(systemName: quote.category.sfSymbol)
                 .foregroundColor(.blue)
+                .font(.system(size: 40))
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(quote.author?.name ?? "Unbekannt")

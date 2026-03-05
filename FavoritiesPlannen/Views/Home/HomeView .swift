@@ -53,16 +53,34 @@ struct HomeView: View {
                 
                 // Container für die Zitat-Karte
                 VStack(alignment: .leading, spacing: 20) {
-                    // Zitattext anzeigen
-                    Text(randomQuote?.text ?? "Keine Zitate vorhanden")
-                        .font(.title)
-                        .fontWeight(.medium)
-                        .italic()
-                        .foregroundColor(.primary)
+                    
+                    // ❗️NEU: HStack um Text und Herz-Button zu trennen, damit sie sich nicht überlappen
+                    HStack(alignment: .top) {
+                        // Zitattext anzeigen
+                        Text(randomQuote?.text ?? "Keine Zitate vorhanden")
+                            .font(.title)
+                            .fontWeight(.medium)
+                            .italic()
+                            .foregroundColor(.primary)
+                        
+                        Spacer(minLength: 15) // Garantiert einen Mindestabstand
+                        
+                        if(randomQuote != nil) {
+                            // Herz-Button
+                            Button {
+                                randomQuote?.isFavorite.toggle()
+                            } label: {
+                                Image(systemName: randomQuote?.isFavorite == true ? "heart.fill" : "heart")
+                                    .foregroundColor(randomQuote?.isFavorite == true ? .red : .gray)
+                                    .font(.title2)
+                            }
+                        }
+                    }
                     
                     // Autor anzeigen
                     Text("- \(randomQuote?.author?.name ?? "Unbekannt")")
                         .font(.headline)
+             
                         .foregroundColor(.secondary)
                         .frame(maxWidth: .infinity, alignment: .trailing)
                     
@@ -102,8 +120,8 @@ struct HomeView: View {
                 // Aufruf der neuen Ansicht
                 ShareQuoteSheetView(selectedItem: selectedItem)
                     .background(Color.black.opacity(0.1))
-                    .presentationDetents([.fraction(0.7)]) // tamanho médio
-                    .presentationDragIndicator(.visible) // mostra a alça para arrastar
+                    .presentationDetents([.fraction(0.7)])
+                    .presentationDragIndicator(.visible)
             }
             .onAppear {
                 // Beim Start ein zufälliges Zitat wählen
@@ -200,7 +218,10 @@ struct AddQuoteSheetView: View {
                     Picker("Kategorie", selection: $selectedCategory) {
                         // Durchlaufen aller Kategorien
                         ForEach(QuoteCategory.allCases, id: \.self) { category in
-                            Text(category.rawValue.capitalized).tag(category)
+                            HStack {
+                                Image(systemName: "\(category.sfSymbol)")
+                                Text(category.rawValue.capitalized).tag(category)
+                            }
                         }
                     }
                 }

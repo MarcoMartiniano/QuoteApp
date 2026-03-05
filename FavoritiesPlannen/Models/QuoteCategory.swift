@@ -38,8 +38,8 @@ enum QuoteCategory: String, CaseIterable, Identifiable, Codable {
         case .leben: return "leaf.fill"
         case .liebe: return "heart.fill"
         case .erfolg: return "trophy.fill"
-        case .humor: return "theatermasks.fill"
-        case .weisheit: return "lightbulb.fill"
+        case .humor: return "face.smiling.fill"
+        case .weisheit: return "brain.fill"
         }
     }
     
