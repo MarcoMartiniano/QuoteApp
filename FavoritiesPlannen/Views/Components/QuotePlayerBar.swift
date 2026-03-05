@@ -21,6 +21,7 @@ struct QuotePlayerBar: View {
         }
         .foregroundStyle(.black)
         .padding()
+        .padding(.horizontal, 16)
         .background(Color(UIColor.secondarySystemBackground))
         .cornerRadius(15)
         .shadow(radius: 5)

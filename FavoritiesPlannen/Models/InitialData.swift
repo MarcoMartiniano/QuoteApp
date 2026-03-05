@@ -59,6 +59,18 @@ struct InitialEntryData {
             text: "Große Ziele brauchen Geduld – und täglichen Einsatz.",
             isFavorite: false,
             category: .erfolg, author: Author(name: "Anna Weber")
+        ),
+        Quote(
+            text: "Humor ist, wenn man trotzdem lacht.",
+            isFavorite: false,
+            category: .humor,
+            author: Author(name: "Karl Valentin")
+        ),
+        Quote(
+            text: "Manchmal ist einfach nichts zu sagen die beste Lösung.",
+            isFavorite: false,
+            category: .none,
+            author: Author(name: "Unbekannt")
         )
     ]
 }

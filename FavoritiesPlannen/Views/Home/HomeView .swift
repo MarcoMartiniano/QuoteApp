@@ -29,77 +29,23 @@ struct HomeView: View {
         NavigationView {
             VStack(spacing: 30) {
                 
-                ZStack(alignment: .topTrailing) {
-                    
-                    let image = randomQuote?.category.image.isEmpty == false
-                    ? randomQuote!.category.image
-                    : QuoteCategory.none.image
-                    HStack {
-                        Image(image)
-                            .resizable()
-                            .scaledToFit()
-                            .cornerRadius(20)
-                            .padding(.top, 10)
-                            .frame(maxWidth: .infinity, maxHeight: 200)
-                    }
-                    HStack {
-                        Spacer()
-                        
-                        Button {
-                            showingShareSheet.toggle()
-                        } label: {
-                            Image(systemName: "square.and.arrow.up.fill")
-                                .foregroundStyle(.black)
-                                .font(.system(size: 24))
-                                .background(Color.white)
-                                .cornerRadius(10)
-                        }
-                        .padding(.horizontal)
-                        .padding(.top, 10)
-                    }
-                }.padding(.top, 6)
+                QuoteImageHeaderView(
+                    quote: randomQuote,
+                    onShareTap: { showingShareSheet.toggle() }
+                )
+                .padding(.top, 6)
                 
                 // Container für die Zitat-Karte
-                VStack(alignment: .leading, spacing: 20) {
-                    // ❗️NEU: HStack um Text und Herz-Button zu trennen, damit sie sich nicht überlappen
-                    HStack(alignment: .top) {
-                        
-                        Text(randomQuote?.text ?? "Keine Zitate vorhanden")
-                            .font(.title)
-                            .fontWeight(.medium)
-                            .italic()
-                            .foregroundColor(.primary)
-                        
-                        Spacer(minLength: 15) // Garantiert einen Mindestabstand
-                        
-                        if randomQuote != nil {
-                            Button {
-                                randomQuote?.isFavorite.toggle()
-                            } label: {
-                                Image(systemName: randomQuote?.isFavorite == true ? "heart.fill" : "heart")
-                                    .foregroundColor(randomQuote?.isFavorite == true ? .red : .gray)
-                                    .font(.title2)
-                            }
-                        }
-                    }
-                    // Autor anzeigen
-                    Text("- \(randomQuote?.author?.name ?? "Unbekannt")")
-                        .font(.headline)
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                }
-                .padding(25)
-                .background(Color(UIColor.secondarySystemBackground))
-                .cornerRadius(15)
-                .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
-                .padding(.horizontal, 20)
+                QuoteCardView(quote: randomQuote)
             
-                // PLAYER BAR
-                QuotePlayerBar(
-                    onStart: { startQuotes() },
-                    onPause: { pauseQuotes() },
-                    onRefresh: { refreshQuote() }
-                )
+                if randomQuote != nil {
+                    // PLAYER BAR
+                    QuotePlayerBar(
+                        onStart: { startQuotes() },
+                        onPause: { pauseQuotes() },
+                        onRefresh: { refreshQuote() }
+                    )
+                }
                 
                 Spacer()
             }
@@ -172,110 +118,86 @@ struct HomeView: View {
     }
 }
 
-struct ShareQuoteSheetView: View {
-    let selectedItem: Quote?
+
+// MARK: - Header mit Bild + Share Button
+private struct QuoteImageHeaderView: View {
+    
+    let quote: Quote?
+    let onShareTap: () -> Void
     
     var body: some View {
-        if let item = selectedItem {
-            let image = selectedItem?.category.image.isEmpty == false ? selectedItem!.category.image : QuoteCategory.none.image
-            VStack {
-                HStack {
-                    Spacer()
-                    ShareLink(
-                        item: item.category.image,
-                        subject: Text("Zitat teilen"),
-                        message: Text("Was sagst du dazu?"),
-                        preview: SharePreview(
-                            "Zitater",
-                            image: Image("App-Logo")
-                        )
-                    ) {
-                        Label("", systemImage: "square.and.arrow.up.fill")
-                            .font(.system(size: 24))
-                            .foregroundStyle(.blue)
-                    }
-                }
-                
-                Spacer()
-                
-                VStack(spacing: 20) {
-                    Image(image)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: .infinity)
-                    
-                    VStack(spacing: 6) {
-                        Text(item.text)
-                            .font(.title2)
-                        HStack{
-                            Spacer()
-                            Text(item.author?.name ?? "Author unbekannt")
-                                .font(.system(size: 16))
-                                .foregroundStyle(.gray)
-                                .italic()
-                        }
-                        
-                    }
-                }
-                Spacer()
+        
+        let image = quote?.category.image.isEmpty == false
+        ? quote!.category.image
+        : QuoteCategory.none.image
+        
+        ZStack(alignment: .topTrailing) {
+            
+            Image(image)
+                .resizable()
+                .scaledToFit()
+                .cornerRadius(20)
+                .padding(.top, 10)
+                .frame(maxWidth: .infinity, maxHeight: 200)
+            
+            Button {
+                onShareTap()
+            } label: {
+                Image(systemName: "square.and.arrow.up.fill")
+                    .foregroundStyle(.black)
+                    .font(.system(size: 24))
+                    .background(Color.white)
+                    .cornerRadius(10)
             }
-            .padding()
+            .padding(.horizontal)
+            .padding(.top, 10)
         }
     }
 }
 
-struct AddQuoteSheetView: View {
-    @Environment(\.dismiss) var dismiss // Zum Schließen
-    @Environment(\.modelContext) private var modelContext // Datenbank-Kontext
+
+// MARK: - Zitat Karte
+private struct QuoteCardView: View {
     
-    @State private var quoteText = ""
-    @State private var authorText = ""
-    
-    @State private var selectedCategory: QuoteCategory = .motivation
+    let quote: Quote?
     
     var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text("Neues Zitat erstellen")) {
-                    TextField("Zitat eingeben...", text: $quoteText)
-                    TextField("Autor eingeben...", text: $authorText)
-                }
+        
+        VStack(alignment: .leading, spacing: 20) {
+            
+            // ❗️NEU: HStack um Text und Herz-Button zu trennen, damit sie sich nicht überlappen
+            HStack(alignment: .top) {
                 
-                Section(header: Text("Kategorie auswählen")) {
-                    Picker("Kategorie", selection: $selectedCategory) {
-                        // Durchlaufen aller Kategorien
-                        ForEach(QuoteCategory.allCases, id: \.self) { category in
-                            HStack {
-                                Image(systemName: "\(category.sfSymbol)")
-                                Text(category.rawValue.capitalized).tag(category)
-                            }
-                        }
+                Text(quote?.text ?? "Keine Zitate vorhanden")
+                    .font(.title)
+                    .fontWeight(.medium)
+                    .italic()
+                    .foregroundColor(.primary)
+                
+                Spacer(minLength: 15)
+                
+                if quote != nil {
+                    Button {
+                        quote?.isFavorite.toggle()
+                    } label: {
+                        Image(systemName: quote?.isFavorite == true ? "heart.fill" : "heart")
+                            .foregroundColor(quote?.isFavorite == true ? .red : .gray)
+                            .font(.title2)
                     }
                 }
             }
-            .navigationTitle("Zitat hinzufügen")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Abbrechen") {
-                        dismiss()
-                    }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Speichern") {
-                        let newAuthor = Author(name: authorText)
-                        
-                        let newQuote = Quote(text: quoteText, isFavorite: false, category: selectedCategory, author: newAuthor)
-                        
-                        modelContext.insert(newAuthor)
-                        modelContext.insert(newQuote)
-                        
-                        dismiss()
-                    }
-                    .disabled(quoteText.isEmpty || authorText.isEmpty) // Button deaktivieren
-                }
-            }
+            
+            // Autor anzeigen
+            Text("- \(quote?.author?.name ?? "Unbekannt")")
+                .font(.headline)
+                .foregroundColor(.secondary)
+                .frame(maxWidth: .infinity, alignment: .trailing)
         }
+        .padding(25)
+        .background(Color(UIColor.secondarySystemBackground))
+        .cornerRadius(15)
+        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
+        .padding(.horizontal, 20)
     }
 }
 

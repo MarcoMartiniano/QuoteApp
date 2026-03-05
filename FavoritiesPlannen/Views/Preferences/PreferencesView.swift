@@ -44,7 +44,6 @@ struct PreferencesRowView: View {
     var body: some View {
 
         HStack(alignment: .center, spacing: 12) {
-
             Text(title)
                 .font(.headline)
                 .foregroundStyle(.primary)

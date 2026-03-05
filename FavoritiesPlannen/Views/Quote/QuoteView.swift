@@ -39,32 +39,17 @@ struct QuoteView: View {
         NavigationStack {
             VStack {
                 
-                // MARK: - Picker
-                Picker("Filter", selection: $filter) {
-                    ForEach(FilterType.allCases) { type in
-                        Text(type.rawValue).tag(type)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .padding()
+                QuoteFilterPickerView(filter: $filter)
                 
-                // MARK: - List
                 if filteredQuotes.isEmpty {
                     Spacer()
-                    ContentUnavailableView(
-                        "Keine Zitate vorhanden",
-                        systemImage: "quote.bubble",
-                        description: Text("Für den ausgewählten Filter gibt es momentan keine Zitate.")
-                    )
+                    QuoteEmptyStateView()
                     Spacer()
                 } else {
-                    List {
-                        ForEach(filteredQuotes) { quote in
-                            QuoteRowView(quote: quote)
-                        }
-                        .onDelete(perform: deleteQuote)
-                    }
-                    .listStyle(.plain)
+                    QuoteListView(
+                        quotes: filteredQuotes,
+                        onDelete: deleteQuote
+                    )
                 }
             }
             .navigationTitle("Zitate")
@@ -82,52 +67,44 @@ struct QuoteView: View {
     }
 }
 
-struct QuoteRowView: View {
-    var quote: Quote
-    @State private var bounce = false
+struct QuoteFilterPickerView: View {
+    @Binding var filter: QuoteView.FilterType
     
     var body: some View {
-        HStack(alignment: .top, spacing: 10) {
-            
-            Image(systemName: quote.category.sfSymbol)
-                .font(.system(size: 40))
-                .foregroundColor(.blue)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(quote.author?.name ?? "Unbekannt")
-                    .font(.headline)
-                
-                Text(quote.text)
-                    .font(.callout)
-                    .italic()
-                    .foregroundColor(.secondary)
+        Picker("Filter", selection: $filter) {
+            ForEach(QuoteView.FilterType.allCases) { type in
+                Text(type.rawValue).tag(type)
             }
-            
-            Spacer()
-            
-            Button {
-                quote.isFavorite.toggle()
-                
-                withAnimation(.spring(response: 0.2, dampingFraction: 0.5)) {
-                    bounce = true
-                }
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    bounce = false
-                }
-                
-            } label: {
-                Image(systemName: quote.isFavorite ? "heart.fill" : "heart")
-                    .foregroundStyle(.red)
-                    .font(.system(size: 24))
-                    .scaleEffect(bounce ? 1.2 : 1.0)
-            }
-            .buttonStyle(.plain)
         }
-        .padding(.vertical, 8)
+        .pickerStyle(.segmented)
+        .padding()
     }
 }
 
+struct QuoteListView: View {
+    let quotes: [Quote]
+    let onDelete: (IndexSet) -> Void
+    
+    var body: some View {
+        List {
+            ForEach(quotes) { quote in
+                QuoteRowView(quote: quote)
+            }
+            .onDelete(perform: onDelete)
+        }
+        .listStyle(.plain)
+    }
+}
+
+struct QuoteEmptyStateView: View {
+    var body: some View {
+        ContentUnavailableView(
+            "Keine Zitate vorhanden",
+            systemImage: "quote.bubble",
+            description: Text("Für den ausgewählten Filter gibt es momentan keine Zitate.")
+        )
+    }
+}
 
 #Preview {
     QuoteView()

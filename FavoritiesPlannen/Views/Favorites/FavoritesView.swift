@@ -19,27 +19,48 @@ struct FavoritesView: View {
     
     var body: some View {
         NavigationStack {
-            List {
-                
+            
+            Group {
                 if favoriteQuotes.isEmpty {
-                    ContentUnavailableView("Keine Favoriten", systemImage: "heart")
+                    Spacer()
+                    FavoritesEmptyStateView()
+                    Spacer()
                 } else {
-                    ForEach(favoriteQuotes) { quote in
-                        
-                        QuoteRowView(quote: quote)
-                        
-                            .swipeActions {
-                                Button("Unfavorite") {
-                                    quote.isFavorite = false
-                                }
-                                .tint(.pink)
-                            }
-                    }
+                    FavoritesListView(quotes: favoriteQuotes)
                 }
             }
-            .listStyle(.plain)
             .navigationTitle("Favoriten")
         }
+    }
+}
+
+struct FavoritesListView: View {
+    let quotes: [Quote]
+    
+    var body: some View {
+        List {
+            ForEach(quotes) { quote in
+                QuoteRowView(quote: quote)
+                    .swipeActions {
+                        Button("Unfavorite") {
+                            quote.isFavorite = false
+                        }
+                        .tint(.pink)
+                    }
+            }
+        }
+        .listStyle(.plain)
+    }
+}
+
+struct FavoritesEmptyStateView: View {
+    
+    var body: some View {
+        ContentUnavailableView(
+            "Keine Favoriten",
+            systemImage: "heart.slash",
+            description: Text("Für den ausgewählten Filter gibt es momentan keine Favoriten.")
+        )
     }
 }
 
