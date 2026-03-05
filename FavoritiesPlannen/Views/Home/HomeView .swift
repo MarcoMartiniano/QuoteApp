@@ -9,7 +9,6 @@ import SwiftUI
 import SwiftData
 
 // Hauptansicht für die App
-
 struct HomeView: View {
     // Holt alle Zitate aus der Datenbank
     @Query private var allQuotes: [Quote]
@@ -22,41 +21,49 @@ struct HomeView: View {
     @State private var showingAddSheet = false
     @State private var showingShareSheet = false
     
+    // PLAYER STATES
+    @State private var timer: Timer? = nil
+    @State private var isPlaying = false
+    
     var body: some View {
         NavigationView {
             VStack(spacing: 30) {
+                
                 ZStack(alignment: .topTrailing) {
                     
-                    let image = randomQuote?.category.image.isEmpty == false ? randomQuote!.category.image : QuoteCategory.none.image
-                    
-                    
-                    Image(image)
-                        .resizable()
-                        .scaledToFit()
-                        .cornerRadius(20)
-                        .frame(maxWidth: .infinity, maxHeight: 250)
-                    
-                    
+                    let image = randomQuote?.category.image.isEmpty == false
+                    ? randomQuote!.category.image
+                    : QuoteCategory.none.image
+                    HStack {
+                        Image(image)
+                            .resizable()
+                            .scaledToFit()
+                            .cornerRadius(20)
+                            .padding(.top, 10)
+                            .frame(maxWidth: .infinity, maxHeight: 200)
+                    }
                     HStack {
                         Spacer()
-                        Button{
+                        
+                        Button {
                             showingShareSheet.toggle()
                         } label: {
                             Image(systemName: "square.and.arrow.up.fill")
                                 .foregroundStyle(.black)
-                                .frame(width: 30 , height: 30)
+                                .font(.system(size: 24))
                                 .background(Color.white)
                                 .cornerRadius(10)
-                        }.padding()
+                        }
+                        .padding(.horizontal)
+                        .padding(.top, 10)
                     }
-                }
+                }.padding(.top, 6)
                 
                 // Container für die Zitat-Karte
                 VStack(alignment: .leading, spacing: 20) {
-                    
                     // ❗️NEU: HStack um Text und Herz-Button zu trennen, damit sie sich nicht überlappen
                     HStack(alignment: .top) {
-                        // Zitattext anzeigen
+                        
                         Text(randomQuote?.text ?? "Keine Zitate vorhanden")
                             .font(.title)
                             .fontWeight(.medium)
@@ -65,8 +72,7 @@ struct HomeView: View {
                         
                         Spacer(minLength: 15) // Garantiert einen Mindestabstand
                         
-                        if(randomQuote != nil) {
-                            // Herz-Button
+                        if randomQuote != nil {
                             Button {
                                 randomQuote?.isFavorite.toggle()
                             } label: {
@@ -76,53 +82,52 @@ struct HomeView: View {
                             }
                         }
                     }
-                    
                     // Autor anzeigen
                     Text("- \(randomQuote?.author?.name ?? "Unbekannt")")
                         .font(.headline)
-             
                         .foregroundColor(.secondary)
                         .frame(maxWidth: .infinity, alignment: .trailing)
-                    
                 }
                 .padding(25)
                 .background(Color(UIColor.secondarySystemBackground))
                 .cornerRadius(15)
                 .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
                 .padding(.horizontal, 20)
-                
-                Button {
-                pickRandomQuote()
-                    
-                } label: {
-                    Image(systemName: "arrow.clockwise")
-                        .foregroundStyle(.black)
-                        .font(.system(size: 40))
-                }
+            
+                // PLAYER BAR
+                QuotePlayerBar(
+                    onStart: { startQuotes() },
+                    onPause: { pauseQuotes() },
+                    onResume: { resumeQuotes() },
+                    onRefresh: { refreshQuote() }
+                )
                 
                 Spacer()
             }
-            .navigationTitle("QuoteCraft")
+            .navigationTitle("Quote Craft")
+            
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        showingAddSheet = true // Sheet öffnen
-                    }) {
+                    Button {
+                        showingAddSheet = true  // Sheet öffnen
+                    } label: {
                         Image(systemName: "plus")
                     }
                 }
             }
+            
             .sheet(isPresented: $showingAddSheet) {
                 // Aufruf der neuen Ansicht
                 AddQuoteSheetView()
             }
+            
             .sheet(isPresented: $showingShareSheet) {
-                // Aufruf der neuen Ansicht
                 ShareQuoteSheetView(selectedItem: selectedItem)
                     .background(Color.black.opacity(0.1))
                     .presentationDetents([.fraction(0.7)])
                     .presentationDragIndicator(.visible)
             }
+            
             .onAppear {
                 // Beim Start ein zufälliges Zitat wählen
                 pickRandomQuote()
@@ -132,18 +137,46 @@ struct HomeView: View {
     
     // Funktion für zufälliges Zitat
     private func pickRandomQuote() {
+        
         let activeCategories = selectedCategories
             .filter { $0.isSelected }
             .map { $0.category }
         
-        let filteredQuotes = allQuotes.filter { activeCategories.contains($0.category) }
+        let filteredQuotes = allQuotes.filter {
+            activeCategories.contains($0.category)
+        }
         
         randomQuote = filteredQuotes.randomElement()
         selectedItem = randomQuote
     }
     
+    
+    // PLAYER FUNCTIONS
+    
+    private func startQuotes() {
+        isPlaying = true
+        
+        timer?.invalidate()
+        
+        timer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
+            pickRandomQuote()
+        }
+    }
+    
+    private func pauseQuotes() {
+        isPlaying = false
+        timer?.invalidate()
+    }
+    
+    private func resumeQuotes() {
+        startQuotes()
+    }
+    
+    private func refreshQuote() {
+        pauseQuotes()
+        pickRandomQuote()
+    }
 }
-
 
 struct ShareQuoteSheetView: View {
     let selectedItem: Quote?
@@ -251,7 +284,6 @@ struct AddQuoteSheetView: View {
         }
     }
 }
-
 
 #Preview {
     HomeView()

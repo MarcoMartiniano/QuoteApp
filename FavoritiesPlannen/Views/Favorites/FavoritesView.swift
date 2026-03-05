@@ -19,20 +19,25 @@ struct FavoritesView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                List {
-                    if favoriteQuotes.isEmpty == true {
-                        ContentUnavailableView("Keine Favoriten", systemImage: "heart")
-                    } else {
-                        ForEach(favoriteQuotes) { quote in
-                            QuoteRowView(quote: quote)
-                        }
+            List {
+                
+                if favoriteQuotes.isEmpty {
+                    ContentUnavailableView("Keine Favoriten", systemImage: "heart")
+                } else {
+                    ForEach(favoriteQuotes) { quote in
+                        
+                        QuoteRowView(quote: quote)
+                        
+                            .swipeActions {
+                                Button("Unfavorite") {
+                                    quote.isFavorite = false
+                                }
+                                .tint(.pink)
+                            }
                     }
                 }
-                .scrollContentBackground(.hidden)
-                .background(Color.clear)
-                .listStyle(.plain)
             }
+            .listStyle(.plain)
             .navigationTitle("Favoriten")
         }
     }
