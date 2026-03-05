@@ -1,5 +1,5 @@
 //
-//  aa.swift
+//  QuotePlayerBar.swift
 //  FavoritiesPlannen
 //
 //  Created by Marco Antonio Martiniano on 05.03.26.
@@ -11,17 +11,13 @@ struct QuotePlayerBar: View {
     
     let onStart: () -> Void
     let onPause: () -> Void
-    let onResume: () -> Void
     let onRefresh: () -> Void
     
     var body: some View {
         HStack(spacing: 40) {
-            
             playerButton(systemImage: "play.fill", title: "Start", action: onStart)
             playerButton(systemImage: "pause.fill", title: "Pause", action: onPause)
-            playerButton(systemImage: "play.circle.fill", title: "Weiter", action: onResume)
             playerButton(systemImage: "arrow.clockwise", title: "Neu", action: onRefresh)
-            
         }
         .foregroundStyle(.black)
         .padding()
@@ -45,5 +41,5 @@ struct QuotePlayerBar: View {
 }
 
 #Preview {
-    QuotePlayerBar(onStart: {}, onPause: {}, onResume: {}, onRefresh: {})
+    QuotePlayerBar(onStart: {}, onPause: {}, onRefresh: {})
 }

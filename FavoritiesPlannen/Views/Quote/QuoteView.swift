@@ -49,13 +49,23 @@ struct QuoteView: View {
                 .padding()
                 
                 // MARK: - List
-                List {
-                    ForEach(filteredQuotes) { quote in
-                        QuoteRowView(quote: quote)
+                if filteredQuotes.isEmpty {
+                    Spacer()
+                    ContentUnavailableView(
+                        "Keine Zitate vorhanden",
+                        systemImage: "quote.bubble",
+                        description: Text("Für den ausgewählten Filter gibt es momentan keine Zitate.")
+                    )
+                    Spacer()
+                } else {
+                    List {
+                        ForEach(filteredQuotes) { quote in
+                            QuoteRowView(quote: quote)
+                        }
+                        .onDelete(perform: deleteQuote)
                     }
-                    .onDelete(perform: deleteQuote)
+                    .listStyle(.plain)
                 }
-                .listStyle(.plain)
             }
             .navigationTitle("Zitate")
         }
@@ -73,16 +83,15 @@ struct QuoteView: View {
 }
 
 struct QuoteRowView: View {
-    
-    @Bindable var quote: Quote
+    var quote: Quote
     @State private var bounce = false
     
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
             
             Image(systemName: quote.category.sfSymbol)
-                .foregroundColor(.blue)
                 .font(.system(size: 40))
+                .foregroundColor(.blue)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(quote.author?.name ?? "Unbekannt")
@@ -118,6 +127,7 @@ struct QuoteRowView: View {
         .padding(.vertical, 8)
     }
 }
+
 
 #Preview {
     QuoteView()

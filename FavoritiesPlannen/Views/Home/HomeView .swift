@@ -98,7 +98,6 @@ struct HomeView: View {
                 QuotePlayerBar(
                     onStart: { startQuotes() },
                     onPause: { pauseQuotes() },
-                    onResume: { resumeQuotes() },
                     onRefresh: { refreshQuote() }
                 )
                 
@@ -123,8 +122,7 @@ struct HomeView: View {
             
             .sheet(isPresented: $showingShareSheet) {
                 ShareQuoteSheetView(selectedItem: selectedItem)
-                    .background(Color.black.opacity(0.1))
-                    .presentationDetents([.fraction(0.7)])
+                    .presentationDetents([.fraction(0.6)])
                     .presentationDragIndicator(.visible)
             }
             
@@ -166,10 +164,6 @@ struct HomeView: View {
     private func pauseQuotes() {
         isPlaying = false
         timer?.invalidate()
-    }
-    
-    private func resumeQuotes() {
-        startQuotes()
     }
     
     private func refreshQuote() {
