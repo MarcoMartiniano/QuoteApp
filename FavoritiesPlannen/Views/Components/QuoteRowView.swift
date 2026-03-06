@@ -23,6 +23,7 @@ struct QuoteRowView: View {
             
             FavoriteButton(quote: quote)
         }
+        .listRowBackground(Color.clear)
         .padding(.vertical, 8)
     }
 }

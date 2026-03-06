@@ -27,54 +27,59 @@ struct HomeView: View {
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 30) {
-                
-                QuoteImageHeaderView(
-                    quote: randomQuote,
-                    onShareTap: { showingShareSheet.toggle() }
-                )
-                .padding(.top, 6)
-                
-                // Container für die Zitat-Karte
-                QuoteCardView(quote: randomQuote)
-            
-                if randomQuote != nil {
-                    // PLAYER BAR
-                    QuotePlayerBar(
-                        onStart: { startQuotes() },
-                        onPause: { pauseQuotes() },
-                        onRefresh: { refreshQuote() }
+            ZStack
+            {
+                Color(.colorBlue)
+                    .ignoresSafeArea(.all)
+                VStack(spacing: 30) {
+                    
+                    QuoteImageHeaderView(
+                        quote: randomQuote,
+                        onShareTap: { showingShareSheet.toggle() }
                     )
+                    .padding(.top, 6)
+                    
+                    // Container für die Zitat-Karte
+                    QuoteCardView(quote: randomQuote)
+                    
+                    if randomQuote != nil {
+                        // PLAYER BAR
+                        QuotePlayerBar(
+                            onStart: { startQuotes() },
+                            onPause: { pauseQuotes() },
+                            onRefresh: { refreshQuote() }
+                        )
+                    }
+                    
+                    Spacer()
                 }
+                .navigationTitle("Quote Craft")
                 
-                Spacer()
-            }
-            .navigationTitle("Quote Craft")
-            
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingAddSheet = true  // Sheet öffnen
-                    } label: {
-                        Image(systemName: "plus")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            showingAddSheet = true  // Sheet öffnen
+                        } label: {
+                            Image(systemName: "plus")
+                        }
                     }
                 }
-            }
-            
-            .sheet(isPresented: $showingAddSheet) {
-                // Aufruf der neuen Ansicht
-                AddQuoteSheetView()
-            }
-            
-            .sheet(isPresented: $showingShareSheet) {
-                ShareQuoteSheetView(selectedItem: selectedItem)
-                    .presentationDetents([.fraction(0.6)])
-                    .presentationDragIndicator(.visible)
-            }
-            
-            .onAppear {
-                // Beim Start ein zufälliges Zitat wählen
-                pickRandomQuote()
+                
+                .sheet(isPresented: $showingAddSheet) {
+                    // Aufruf der neuen Ansicht
+                    AddQuoteSheetView()
+                }
+                
+                .sheet(isPresented: $showingShareSheet) {
+                    ShareQuoteSheetView(selectedItem: selectedItem)
+                        .presentationDetents([.fraction(0.6)])
+                        .presentationDragIndicator(.visible)
+                }
+                
+                .onAppear {
+                    // Beim Start ein zufälliges Zitat wählen
+                    pickRandomQuote()
+                }
             }
         }
     }
@@ -144,9 +149,8 @@ private struct QuoteImageHeaderView: View {
                 onShareTap()
             } label: {
                 Image(systemName: "square.and.arrow.up.fill")
-                    .foregroundStyle(.black)
+                    .foregroundStyle(.script)
                     .font(.system(size: 24))
-                    .background(Color.white)
                     .cornerRadius(10)
             }
             .padding(.horizontal)

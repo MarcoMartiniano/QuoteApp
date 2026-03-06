@@ -18,6 +18,7 @@ struct RootView: View {
             }
             .tabItem {
                 Label("Home", systemImage: "house.fill")
+                    .foregroundStyle(.script)
             }
             .tag(0)
             
@@ -26,18 +27,21 @@ struct RootView: View {
             }
             .tabItem {
                 Label("Zitate", systemImage: "quote.bubble")
+                    .foregroundStyle(.script)
             }
             .tag(1)
             
             FavoritesView()
                 .tabItem {
                     Label("Favoriten", systemImage: "heart.fill")
+                        .foregroundStyle(.script)
                 }
                 .tag(2)
 
             PreferencesView()
                 .tabItem {
                     Label("Preferences", systemImage: "slider.horizontal.3")
+                        .foregroundStyle(.script)
                 }
                 .tag(3)
             

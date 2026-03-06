@@ -15,25 +15,28 @@ struct PreferencesView: View {
     
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(categories, id: \.id) { category in
-                    PreferencesRowView(
-                        title: category.category.displayName,
-                        isSelected: Binding<Bool>(
-                            get: { category.isSelected },
-                            set: { newValue in
-                                category.isSelected = newValue
-                                try? context.save()
-                            }
+            ZStack {
+                Color(.colorBlue)
+                    .ignoresSafeArea(.all)
+                List {
+                    ForEach(categories, id: \.id) { category in
+                        PreferencesRowView(
+                            title: category.category.displayName,
+                            isSelected: Binding<Bool>(
+                                get: { category.isSelected },
+                                set: { newValue in
+                                    category.isSelected = newValue
+                                    try? context.save()
+                                }
+                            )
                         )
-                    )
+                    }
+                    
                 }
-
+                .scrollContentBackground(.hidden)
+                .listStyle(.plain)
+                .navigationTitle("Preferences")
             }
-            .scrollContentBackground(.hidden)
-            .background(Color.clear)
-            .listStyle(.plain)
-            .navigationTitle("Preferences")
         }
     }
 }

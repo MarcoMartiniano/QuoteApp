@@ -19,7 +19,7 @@ struct QuotePlayerBar: View {
             playerButton(systemImage: "pause.fill", title: "Pause", action: onPause)
             playerButton(systemImage: "arrow.clockwise", title: "Neu", action: onRefresh)
         }
-        .foregroundStyle(.black)
+        .foregroundStyle(.script)
         .padding()
         .padding(.horizontal, 16)
         .background(Color(UIColor.secondarySystemBackground))

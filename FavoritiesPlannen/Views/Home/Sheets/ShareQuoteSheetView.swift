@@ -58,7 +58,7 @@ private struct ShareHeaderView: View {
             ) {
                 Label("", systemImage: "square.and.arrow.up.fill")
                     .font(.system(size: 24))
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(.script)
             }
         }
     }

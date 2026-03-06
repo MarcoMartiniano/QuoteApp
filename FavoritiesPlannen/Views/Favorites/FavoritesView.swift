@@ -19,17 +19,20 @@ struct FavoritesView: View {
     
     var body: some View {
         NavigationStack {
-            
-            Group {
-                if favoriteQuotes.isEmpty {
-                    Spacer()
-                    FavoritesEmptyStateView()
-                    Spacer()
-                } else {
-                    FavoritesListView(quotes: favoriteQuotes)
+            ZStack{
+                Color(.colorBlue)
+                    .ignoresSafeArea(.all)
+                Group {
+                    if favoriteQuotes.isEmpty {
+                        Spacer()
+                        FavoritesEmptyStateView()
+                        Spacer()
+                    } else {
+                        FavoritesListView(quotes: favoriteQuotes)
+                    }
                 }
+                .navigationTitle("Favoriten")
             }
-            .navigationTitle("Favoriten")
         }
     }
 }

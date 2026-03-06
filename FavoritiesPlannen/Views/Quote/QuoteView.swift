@@ -37,22 +37,26 @@ struct QuoteView: View {
     
     var body: some View {
         NavigationStack {
-            VStack {
-                
-                QuoteFilterPickerView(filter: $filter)
-                
-                if filteredQuotes.isEmpty {
-                    Spacer()
-                    QuoteEmptyStateView()
-                    Spacer()
-                } else {
-                    QuoteListView(
-                        quotes: filteredQuotes,
-                        onDelete: deleteQuote
-                    )
+            ZStack {
+                Color(.colorBlue)
+                    .ignoresSafeArea(.all)
+                VStack {
+                    
+                    QuoteFilterPickerView(filter: $filter)
+                    
+                    if filteredQuotes.isEmpty {
+                        Spacer()
+                        QuoteEmptyStateView()
+                        Spacer()
+                    } else {
+                        QuoteListView(
+                            quotes: filteredQuotes,
+                            onDelete: deleteQuote
+                        )
+                    }
                 }
+                .navigationTitle("Zitate")
             }
-            .navigationTitle("Zitate")
         }
     }
     
