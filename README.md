@@ -9,6 +9,21 @@ Dieses Projekt wurde im Rahmen einer Projektwoche entwickelt, um die Arbeit mit 
 
 ---
 
+## 📌 Status
+
+**Status:** Abgeschlossen (Completed)
+
+## 👥 Team
+
+Dieses Projekt wurde im Rahmen einer Projektwoche entwickelt von:
+
+* Marco (Teamlead)  
+* Sebastian  
+* Daniel  
+* Viacheslav
+
+---
+
 ## 🚀 Features
 
 ### Grundlegende Funktionen
