@@ -1,5 +1,5 @@
 ## Documentation
 
-- [UML Diagram](docs/UMLDiagram.pdf)
-- [Project Documentation](docs/Readme.pdf)
-- [Project ScreenShots](docs/ScreenShots.pdf)
+- [UML Diagram](docs/UMLDiagram)
+- [Project Documentation](docs/Readme)
+- [Project ScreenShots](docs/ScreenShots)
