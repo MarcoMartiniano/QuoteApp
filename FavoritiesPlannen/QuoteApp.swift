@@ -12,7 +12,7 @@ import SwiftData
 struct QuoteApp: App {
     var body: some Scene {
         WindowGroup {
-            RootView()
+            SplashView()
         }.modelContainer(for: [Author.self, Quote.self, CategorySelection.self])
     }
 }
